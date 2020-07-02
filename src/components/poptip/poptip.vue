@@ -30,6 +30,9 @@
                             <i class="ivu-icon ivu-icon-ios-help-circle"></i>
                             <div :class="[prefixCls + '-body-message']"><slot name="title">{{ title }}</slot></div>
                         </div>
+                        <div v-if="showSlotContent" :class="[prefixCls + '-body']">
+                            <div :class="[prefixCls + '-body-content']"><slot name="content"><div :class="[prefixCls + '-body-content-inner']">{{ content }}</div></slot></div>
+                        </div>
                         <div :class="[prefixCls + '-footer']">
                             <i-button type="text" size="small" @click.native="cancel">{{ localeCancelText }}</i-button>
                             <i-button type="primary" size="small" @click.native="ok">{{ localeOkText }}</i-button>
@@ -129,6 +132,7 @@
             return {
                 prefixCls: prefixCls,
                 showTitle: true,
+                showSlotContent: false,
                 isInput: false,
                 disableCloseUnderTransfer: false,  // transfer 模式下，点击 slot 也会触发关闭
                 tIndex: this.handleGetIndex()
@@ -290,7 +294,10 @@
             if (!this.confirm) {
 //                this.showTitle = this.$refs.title.innerHTML != `<div class="${prefixCls}-title-inner"></div>`;
                 this.showTitle = (this.$slots.title !== undefined) || this.title;
+            }else {
+                this.showSlotContent = (this.$slots.content !== undefined) || this.content;
             }
+
             // if trigger and children is input or textarea,listen focus & blur event
             if (this.trigger === 'focus') {
                 this.$nextTick(() => {

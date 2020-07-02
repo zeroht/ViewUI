@@ -70,7 +70,9 @@
             render: {
                 type: Function
             },
-
+            stopPropagateUp:{
+                default:false
+            }
         },
         data () {
             return {
@@ -127,6 +129,10 @@
                 return flatTree;
             },
             updateTreeUp(nodeKey){
+                if (this.stopPropagateUp){
+                    return;
+                }
+
                 const parentKey = this.flatState[nodeKey].parent;
                 if (typeof parentKey == 'undefined' || this.checkStrictly) return;
 

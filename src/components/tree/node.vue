@@ -15,7 +15,7 @@
                 <span :class="titleClasses" @click="handleSelect">
                     <Render v-if="data.render" :render="data.render" :data="data" :node="node"></Render>
                     <Render v-else-if="isParentRender" :render="parentRender" :data="data" :node="node"></Render>
-                    <template v-else>{{ data.title }}</template>
+                    <template v-else><span v-html="data.title"></span></template>
                 </span>
                 <Tree-node
                         v-if="data.expand"

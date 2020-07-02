@@ -1,5 +1,5 @@
 <template>
-    <div :class="classes">
+    <div :class="classes" v-show="visible">
         <label :class="[prefixCls + '-label']" :for="labelFor" :style="labelStyles" v-if="label || $slots.label"><slot name="label">{{ label }}{{ FormInstance.colon }}</slot></label>
         <div :class="[prefixCls + '-content']" :style="contentStyles">
             <slot></slot>
@@ -71,6 +71,13 @@
             },
             labelFor: {
                 type: String
+            },
+            visible: {
+                type: Boolean,
+                default: true
+            },
+            className:{
+                default: ""
             }
         },
         data () {
@@ -103,11 +110,16 @@
                     this.resetField();
                 }
             },
+            visible(val) {
+                if (!val) {
+                    this.resetField();
+                }
+            }
         },
         inject: ['FormInstance'],
         computed: {
             classes () {
-                return [
+                let _classes = [
                     `${prefixCls}`,
                     {
                         [`${prefixCls}-required`]: this.required || this.isRequired,
@@ -115,6 +127,12 @@
                         [`${prefixCls}-validating`]: this.validateState === 'validating'
                     }
                 ];
+
+                if (this.className){
+                    _classes.push(this.className)
+                }
+
+                return _classes;
             },
             // form() {
             //    let parent = this.$parent;
@@ -185,7 +203,7 @@
             },
             validate(trigger, callback = function () {}) {
                 let rules = this.getFilteredRule(trigger);
-                if (!rules || rules.length === 0) {
+                if (!this.visible || !rules || rules.length === 0) {
                     if (!this.required) {
                         callback();
                         return true;

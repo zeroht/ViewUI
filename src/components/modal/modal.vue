@@ -7,7 +7,7 @@
             <transition :name="transitionNames[0]" @after-leave="animationFinish">
                 <div :class="classes" :style="mainStyles" v-show="visible" @mousedown="handleMousedown">
                     <div :class="contentClasses" ref="content" :style="contentStyles" @click="handleClickModal">
-                        <a :class="[prefixCls + '-close']" v-if="closable" @click="close">
+                        <a :class="[prefixCls + '-close']" v-if="closable" @click="_close">
                             <slot name="close">
                                 <Icon type="ios-close"></Icon>
                             </slot>
@@ -15,11 +15,11 @@
                         <div :class="[prefixCls + '-header']"
                              @mousedown="handleMoveStart"
                              v-if="showHead"
-                        ><slot name="header"><div :class="[prefixCls + '-header-inner']">{{ title }}</div></slot></div>
+                        ><slot name="header"><div :class="[prefixCls + '-header-inner']" v-html="title"></div></slot></div>
                         <div :class="[prefixCls + '-body']"><slot></slot></div>
                         <div :class="[prefixCls + '-footer']" v-if="!footerHide">
                             <slot name="footer">
-                                <i-button type="text" @click.native="cancel">{{ localeCancelText }}</i-button>
+                                <i-button type="text" @click.native="_close">{{ localeCancelText }}</i-button>
                                 <i-button type="primary" :loading="buttonLoading" @click.native="ok">{{ localeOkText }}</i-button>
                             </slot>
                         </div>
@@ -61,7 +61,7 @@
             maskClosable: {
                 type: Boolean,
                 default () {
-                    return !this.$IVIEW || this.$IVIEW.modal.maskClosable === '' ? true : this.$IVIEW.modal.maskClosable;
+                    return !this.$IVIEW || this.$IVIEW.modal.maskClosable === '' ? false : this.$IVIEW.modal.maskClosable;
                 }
             },
             title: {
@@ -124,9 +124,12 @@
                 default: false
             },
             zIndex: {
-                type: Number,
+                //type: Number,
                 default: 1000
             },
+            autoHide:{ // for close confirm @zeroht
+                default: true
+            }
         },
         data () {
             return {
@@ -159,7 +162,7 @@
             },
             wrapStyles () {
                 return {
-                    zIndex: this.modalIndex + this.zIndex
+                    zIndex: this.modalIndex + Number(this.zIndex)
                 };
             },
             maskClasses () {
@@ -240,6 +243,13 @@
             }
         },
         methods: {
+            _close(){
+                if (this.autoHide){
+                    this.close();
+                } else {
+                    this.$emit('on-cancel');
+                }
+            },
             close () {
                 this.visible = false;
                 this.$emit('input', false);
@@ -275,7 +285,7 @@
                 this.$emit('on-ok');
             },
             EscClose (e) {
-                if (this.visible && this.closable) {
+                /*if (this.visible && this.closable) {
                     if (e.keyCode === 27) {
                         const $Modals = findComponentsDownward(this.$root, 'Modal').filter(item => item.$data.visible && item.$props.closable);
 
@@ -287,7 +297,7 @@
                             $TopModal.close();
                         }, 0);
                     }
-                }
+                }*/
             },
             animationFinish() {
                 this.$emit('on-hidden');
